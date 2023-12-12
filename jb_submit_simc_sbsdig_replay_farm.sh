@@ -1,10 +1,11 @@
 #!/bin/bash
 
-g4sbsMacro=$1 ##Include extension
+simcMacro=$1 ##Include extension
 kine=$2
-numEvents=$3
-firstjob=$4
-numbjobs=$5
+nOrp=$3
+numEvents=$4
+firstjob=$5
+numbjobs=$6
 
 maxtime='2days'
 
@@ -12,7 +13,7 @@ numbEventsKformat=$((1 * numEvents/1000))'k'
 
 echo "Num events: " $numbEventsKformat
 
-fileBaseName=${g4sbsMacro%.mac}
+fileBaseName=${simcMacro%.mac}
 filename=${fileBaseName##*/}'.root'
 echo 
 echo "Filename created from macro script name: " 
@@ -28,11 +29,11 @@ echo "" > $csvfile
 
 iteratedFileName=$fileBaseName$jobNum'.root'
 
-g4sbsFarmRunScript='/work/halla/sbs/jboyd/jlab-HPC/jb_scripts/jb_run_g4sbs_sbsdig_replay_job.sh'
+g4sbsFarmRunScript='/work/halla/sbs/jboyd/jlab-HPC/jb_scripts/jb_run_simc_sbsdig_replay_job.sh'
 g4sbsScriptDir='/work/halla/sbs/jboyd/mysim/install/scripts/'
 
-g4sbsjobname=$g4sbsMacro
-workflowname='g4sbs_sbsdig_and_replay'
+simcjobname=$simcMacro
+workflowname='simc_sbsdig_and_replay_SBS'$kine
 
 # Setting necessary environments via setenv.sh
 source /site/12gev_phys/softenv.sh 2.5
@@ -46,11 +47,11 @@ for ((i=$firstjob; i<$((firstjob+numbjobs)); i++))
 do
 	echo "Submitting Job Number: " $i
 	echo "-----"
-	echo "Macro being called: " $g4sbsScriptDir'farmSBS'$kine'/'$g4sbsMacro
+	echo "Macro being called: " $g4sbsScriptDir'farmSBS'$kine'/'$simcMacro
 	echo ""
 	echo "*-*-*-*-*-*-*-*-*-*-*-*"
 	echo "Workflow: " $workflowname
-	swif2 add-job -workflow $workflowname -partition production -name $g4sbsjobname -cores 1 -disk 5GB -ram 1500MB -time $maxtime $g4sbsFarmRunScript $g4sbsScriptDir'farmSBS'$kine'/'$g4sbsMacro $filename $numEvents $i $kine $numbEventsKformat $fileBaseName
+	swif2 add-job -workflow $workflowname -partition production -name $simcjobname -cores 1 -disk 5GB -ram 1500MB -time $maxtime $g4sbsFarmRunScript $g4sbsScriptDir'farmSBS'$kine'/'$simcMacro $filename $numEvents $i $kine $numbEventsKformat $nOrp $fileBaseName
 	echo "*-*-*-*-*-*-*-*-*-*-*-*"
 	echo ""
 
